@@ -1,0 +1,221 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr">
+<head>
+<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+<title>Couteau suisse elliptique</title>
+<style type="text/css" media="all">
+#pied {
+    font-size: 80%;    
+    text-align: right;
+    font-style: italic;
+}
+
+.toc { 
+    font-size: 80%;
+    position: fixed;
+    top: 1em;
+    right: 1em;
+    width: 15em;
+    background-color: #eee;
+    margin: 0px;
+    padding: 0px 
+    -moz-border-radius: 0.6em;
+    border-radius: 0.6em;
+}      
+
+.toc ul {
+    list-style-type: none;
+    padding: 0em 1em;
+}
+
+.toc ul ul {
+    font-size: 90%;
+}
+
+#tour {
+    display: inline-block;
+    text-align: justify;
+    width: 60em;
+    padding: 2em;
+}
+
+body {
+	font: normal 12pt sans-serif;
+    line-height: 1.3em;
+	text-align: left;
+	margin: 3em;
+	padding: 2em;
+}
+
+#header h2 {
+    font-weight: normal;
+    font-style: italic;
+}
+
+#body h3 {
+    margin-top: 3em;
+}
+
+#body h1 {
+    border-bottom: 1px solid black;
+    padding-bottom: 0.25em;
+	margin-top: 2em;
+}
+
+a {
+    color: #ee7700;
+    font-weight: bold;
+	text-decoration: none;
+}
+
+.toc a {
+    color: black;
+}
+
+blockquote {
+	margin-left: 5em;
+	margin-top:2em;
+	font-style:italic;
+}
+
+hr {
+	margin-top:3em;
+}
+
+pre {
+    padding: 1em;
+    background-color: #fce4cc;
+    -moz-border-radius: 0.6em;
+    border-radius: 0.6em;
+}
+</style>
+<style type="text/css" media="print">
+body {
+    font-size: 10pt
+}
+.toc, #pied {
+    display: none;
+}
+</style>
+</head>
+<body>
+<div id="tour">
+<div id="header">
+<h1>Couteau suisse elliptique</h1>
+<h2>M2 SIR + SSL sécurité et protocoles</h2>
+<h3>novembre 2016</h3>
+</div>
+<div id="corps">
+<div class="body" id="body">
+
+<h1>Objectif et modalités de retour</h1>
+
+<p>
+L'objectif de ce projet est d'écrire un utilitaire cryptographique en ligne de commande <code>ecctool</code> qui permette de manipuler des clés, signer et vérifier, chiffrer et déchiffrer des fichiers. Cet utilitaire utilisera le chiffrement à base de courbes elliptiques, les fonctions de hachage SHA-2 et le chiffrement symétrique AES.
+</p>
+
+<pre>
+$ ecctool -keygen DSA-Ed25519-SHA-512 -id alice
+Generating secret key... ok
+Generating public key... ok
+$ ecctool -exportpub -id alice
+alice:DSA-Ed25519-SHA-512:0b1bedd3c9cd8a3fc4e6b0723993135c8de0d81e9810c1b114acc2ab44cc747a
+$ ecctool -importpub -id bob &lt; bobkey.txt
+$ ecctool -sign -id alice -in message.txt -out message.sig
+Signing file message.txt into message.sig
+$ ecctool -check -in message.txt -sig message.sig
+Verifying message.sig... ok
+$ ecctool -enc -dest bob -in message.txt -out message.crypt
+Generating session key... ok
+Enciphering message.txt... ok
+Enciphering session key... ok
+File message.crypt encoded with ElGamal-Ed25519-SHA-512-AES-256-CBC
+$ ecctool -dec -id alice -in secret.crypt -out secret.txt
+Using ElGamal-Ed25519-SHA-512-AES-256
+Deciphering session key... ok
+Deciphering session data... ok
+</pre>
+
+<p>
+L'utilitaire pourra être codé en Python ou en Java. Du code est déjà fourni dans les répertoires <code>python/</code> et <code>java/</code> du sujet pour accompagner la prise en main des briques cryptogaphiques. Des documents d'accompagnement documentent ces briques dans <code>bib/</code>.
+</p>
+<p>
+Le projet est à réaliser en équipe de 2 à 4 étudiants. Une archive sera déposée à la fin sur Celene, contenant les sources, un script de compilation et un petit rapport expliquant les choix réalisés et des exemples d'utilisation.
+</p>
+<p>
+La date limite de dépôt est le vendredi 6 janvier 2017.
+</p>
+
+<h1>Ed25519</h1>
+
+<p>
+Une implémentation jouet d'Ed25519 est fournie avec le sujet. Elle met en œuvre la génération de clé publique à partir de la clé privée, la manipulation des points et de la courbe, ainsi que le mécanisme de signature et de vérification de signature DSA Ed25519-SHA-512. Prendre le temps de lire et de tester votre compréhension de ce code en expérimentant.
+</p>
+<p>
+Écrire une première version de votre couteau suisse <code>ecctool</code> qui gére les clés et la signature uniquement avec l'algorithme fourni. Il doit être possible de signer un fichier, générant un nouveau fichier séparé de signature ; et de vérifier qu'une signature est valide. Pour les fichiers de signature, on choisira un format textuel simple où les valeurs numériques sont codées en hexadécimal.
+</p>
+<p>
+Les clés manipulées par l'outil seront stockées dans un fichier <code>keychain</code>, un fichier texte qui liste en deux sections les clés publiques et privées, précisant pour chacune d'elle l'identité (le propriétaire de la clé), l'algorithme utilisé et la clé proprement dite codée en hexadécimal. Il doit être possible de générer une nouvelle paire de clés et d'importer/exporter des clés publique et privées vers et depuis des fichiers.
+</p>
+
+<pre>
+[pub]
+alice:DSA-Ed25519-SHA-512:3b6a27bcceb6a42d62a3a8d02a6f0d73653215771de243a63ac048a18b59da29
+bob:DSA-Ed25519-SHA-512:9306174718782677421941598019497452153466003872779556850319393023
+
+[sec]
+alice:DSA-Ed25519-SHA-512:0000000000000000000000000000000000000000000000000000000000000000
+</pre>
+
+<h1>El Gamal</h1>
+
+<p>
+L'algorithme El Gamal permet de faire du chiffrement asymétrique sur les courbes elliptiques. Une fois documenté sur la question, ajouter la manipulation des clés El Gamal à votre outil et mettre en œuvre le chiffrement et le déchiffrement de fichiers. On prendra soin d'utiliser un mécanisme de chiffrement hybride : le fichier est chiffré avec l'algorithme de chiffrement symétrique AES avec une clé de session qui est elle-même chiffrée avec El Gamal en début de fichier.
+</p>
+
+<h1>Généralisation à d'autres courbes</h1>
+
+<p>
+Une fois lu <a href="bib/eddsa.pdf">EdDSA for more curves</a>, modifier l'outil pour permettre un plus grand choix d'algorithmes pour la signature et le chiffrement, parmi au moins :
+</p>
+
+ <ul>
+ <li>Ed25519-SHA-512-*
+ </li>
+ <li>Ed41417-SHA-512/832-*
+ </li>
+ <li>Ed448-SHA-512/912-*
+ </li>
+ <li>Ed521-SHA-512/1056-*
+ </li>
+ </ul>
+
+<h1>Références</h1>
+
+<ul>
+<li><a href="bib/ecchacks.pdf">A gentle introduction to elliptic curves</a>
+</li>
+<li><a href="bib/eddsa.pdf">EdDSA for more curves</a>
+</li>
+<li><a href="bib/eddsa2.pdf">EdDSA and Ed25519 Internet-Draft</a>
+</li>
+<li><a href="bib/elgamal.pdf">Elliptic Curves Cryptosystems</a>
+</li>
+<li><a href="bib/elgamal2.pdf">Public-key cryptography</a>
+</li>
+<li><a href="bib/sha.pdf">FIPS 180-4 Secure Hash Standard (SHA)</a>
+</li>
+</ul>
+
+</div>
+<!-- xhtml code generated by txt2tags 2.6. (http://txt2tags.org) -->
+<!-- cmdline: txt2tags sujet.t2t -->
+</div>
+<div id="pied">
+Dernière modification le 24 November 2016
+</div>
+</div>
+</body>
+</html>
+
