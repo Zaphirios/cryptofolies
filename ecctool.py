@@ -1,6 +1,7 @@
 #!/bin/env python
 
 import argparse
+import generateurKeystore
 
 parser = argparse.ArgumentParser(description='Elliptic curve cryptography toolkit.')
 
@@ -21,5 +22,15 @@ parser.add_argument('-dest', action='store', dest='dest', help='Id of the recipi
 
 
 args = parser.parse_args()
+if args.keygen :
+    if args.user_id :
+        print(args.user_id)
+        print("debut de la generation de la clef")
+        generateurKeystore.generationKey(args.user_id)
+        print("clef generes")
+
+    else:
+        print("veuillez rajouter l'id de la personne")
+
 
 print(args.keygen)
