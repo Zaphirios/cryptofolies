@@ -52,3 +52,27 @@ def generationKey(nomUser):
     fichier.write(toWrite)
     fichier.close() 
     return
+
+def exportPub(user_id):
+	if exists("keystore") == False:
+		print("Fichier keystore inexistant")
+		return -1
+     
+	chercher = False
+	for ligne in fichier:
+		if chercher == False and ligne == "[PUB]\n":
+			chercher = True;
+		
+		elif chercher == True and ligne == "[/PUB]\n":
+		    chercher = False
+		
+		elif chercher == True:
+			info = ligne.split(':')
+			if info[0] == user_id:
+				print("voici les info sur votre clef : \n")
+				print("    - chiffrement : "+info[1] + "\n")
+				print("    - voici votre clef publique : " + info[2] + "\n")
+
+	return
+
+			
