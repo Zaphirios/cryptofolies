@@ -1,5 +1,5 @@
 #!/bin/env python
-
+import sys
 import argparse
 import generateurKeystore
 
@@ -26,10 +26,12 @@ args = parser.parse_args()
 # ecctool -keygen DSA-Ed25519-SHA-512 -id alice
 if args.keygen :
 	if args.user_id :
-		print(args.user_id)
-		print("debut de la generation de la clef")
-		generateurKeystore.generationKey(args.user_id)
-		print("clef generes")
+		print("Generation de la clef pour : "+args.user_id)
+		retour =  generateurKeystore.generationKey(args.user_id)
+                if retour == -1:
+                    print("une erreur s'est deroulee durant l'execution")
+                else :
+	 	    print("clef generes")
 	else:
 		print("[ERREUR] -id manquant")
 
@@ -37,7 +39,8 @@ if args.keygen :
 elif args.export_pub :
 	if args.user_id :
 		print("exportation de la clef pub")
-		# TODO methode exportPub() dans generateur keystore
+		generateurKeystore.exportPub(args.user_id)
+                # TODO methode exportPub() dans generateur keystore
 
 	else :
 		print("[ERREUR] -id manquant")
@@ -45,6 +48,7 @@ elif args.export_pub :
 # ecctool -importpub -id bob < bobkey.txt
 elif args.import_pub :
 	if args.user_id :
+                generateurKeystore.importPub(args.user_id, sys.argv[4])
 		print("importation depuis un fichier")
 		#TODO import depuis un fichier existant
 

@@ -27,7 +27,11 @@ def generationKey(nomUser):
     sec = 0
     toWrite = ""
     for ligne in fichier:
-        
+        nom = ligne.split(":")
+        if nom[0] == nomUser:
+            print("[ERREUR] Le nom existe deja ! ")
+            return -1 #oui cest degue mais si quelque veux faire le projet qu'il le fasse
+
         if ligne == "[PUB]\n":
             pub = 1
             sec = 0
@@ -57,7 +61,8 @@ def exportPub(user_id):
 	if exists("keystore") == False:
 		print("Fichier keystore inexistant")
 		return -1
-     
+        
+        fichier = open("keystore", "r")
 	chercher = False
 	for ligne in fichier:
 		if chercher == False and ligne == "[PUB]\n":
@@ -75,4 +80,11 @@ def exportPub(user_id):
 
 	return
 
-			
+def importPub(user_id, key):
+    if exists("keystore") == False:
+        print("creation du keystore")
+        init_fichier()
+
+    
+    print(key)
+    return
