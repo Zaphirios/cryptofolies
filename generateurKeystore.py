@@ -27,7 +27,11 @@ def generationKey(nomUser):
     sec = 0
     toWrite = ""
     for ligne in fichier:
-        
+        nom = ligne.split(":")
+        if nom[0] == nomUser:
+            print("[ERREUR] Le nom existe deja ! ")
+            return -1 #oui cest degue mais si quelque veux faire le projet qu'il le fasse
+
         if ligne == "[PUB]\n":
             pub = 1
             sec = 0
@@ -38,7 +42,7 @@ def generationKey(nomUser):
 
 
         if ligne == "[/PUB]\n" and pub == 1:
-            toWrite = toWrite + nomUser+":DSA-Ed25519-SHA-512:"+ed25519.publickey(user).encode('hex')+"\n"            
+            toWrite = toWrite + nomUser+":DSA-Ed25519-SHA-512:"+ed25519.publickey(user).encode('hex')+"\n"
             pub = 0
             toWrite = toWrite + ligne
         elif ligne == "[/SEC]\n" and sec == 1:
@@ -50,5 +54,35 @@ def generationKey(nomUser):
     fichier.close()
     fichier = open("keystore", "w")
     fichier.write(toWrite)
-    fichier.close() 
+    fichier.close()
+    return
+
+def exportPub(user_id):
+    if exists("keystore") == False:
+        print("Fichier keystore inexistant")
+        return -1
+
+    fichier = open("keystore", "r")
+    chercher = False
+    for ligne in fichier:
+        if chercher == False and ligne == "[PUB]\n":
+            chercher = True;
+
+        elif chercher == True and ligne == "[/PUB]\n":
+            chercher = False
+
+        elif chercher == True:
+            info = ligne.split(':')
+            if info[0] == user_id:
+                return info
+
+    return
+
+def importPub(user_id, key):
+    if exists("keystore") == False:
+        print("creation du keystore")
+        init_fichier()
+
+
+    print(key)
     return
