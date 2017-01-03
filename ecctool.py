@@ -1,9 +1,11 @@
 #!/bin/env python
 import sys
 import argparse
-
 import ed25519
 import generateurKeystore
+from os import urandom
+from base64 import b64encode
+
 
 parser = argparse.ArgumentParser(description='Elliptic curve cryptography toolkit.')
 
@@ -57,7 +59,6 @@ elif args.import_pub :
         print("arg4 :4" + sys.argv[4])
         generateurKeystore.importPub(args.user_id, sys.argv[4])
         print("importation depuis un fichier")
-    #TODO import depuis un fichier existant
 
     else :
         print("[ERREUR] -id manquant")
@@ -89,22 +90,29 @@ elif args.sign :
         fichier = open("message.txt", "r")
         msg = fichier.read()
         fichier.close()
-        info = generateurKeystore.exportPub(args.user_id)
-        if info < 0 :
-            print "erreur id introuvable"
-        else :
-            userKey = info[2]
-            sk = 32 * chr(0) #je ne sais pas a quoi ca correspond
 
-            sig = ed25519.signature(msg, sk, userKey)
+        info_pk = generateurKeystore.exportPub(args.user_id)
+        info_sk = generateurKeystore.exportSec(args.user_id)
+        if info_pk < 0 or info_pk < 0:
+            print "erreur id introuvable"
+        else:
+
+            userPK = info_pk[2]
+            userSK = info_sk[2]
+
+            userPK = str(userPK).rstrip().decode('hex')
+            userSK = str(userSK).rstrip().decode('hex')
+
+
+            sig = ed25519.signature(msg, userSK, userPK)
             fichier = open(args.out_info, "w")
-            fichier.write(sig)
+            fichier.write(sig.encode("hex"))
             fichier.close()
 
             print "la signature a ete generee"
 
 
-#ecctool -check -in message.txt -sig message.sig
+#ecctool -check -in message.txt -sig message.sig -id alice
 elif args.check :
     action = 0
 
@@ -119,9 +127,38 @@ elif args.check :
     else:
         print("[ERREUR] -sig manquant")
 
-    if action == 2 :
+    if action != -1 and args.user_id :
+        action = 3
+    else:
+        print("[ERREUR] -id manquant")
+
+    if action == 3 :
         print("check signature du message")
-    #TODO check signature message
+        fichier = open(args.in_info, "r")
+        msg = fichier.read()
+        fichier.close()
+        info_pk = generateurKeystore.exportPub(args.user_id)
+        info_sk = generateurKeystore.exportSec(args.user_id)
+        if info_sk < 0:
+            print "erreur id introuvable"
+        else:
+            userPK = info_pk[2]
+            userSK = info_sk[2]
+
+            userPK = str(userPK).rstrip().decode('hex')
+            userSK = str(userSK).rstrip().decode('hex')
+
+            fsig = open(args.sig, "r")
+            signature = fsig.read()
+            fsig.close()
+
+            signature = str(signature).rstrip().decode('hex')
+
+            try:
+                ed25519.checkvalid(signature, msg, userPK)
+                print "La signature est conforme"
+            except:
+                print "la signature est fausse"
 
 # ecctool -enc -dest bob -in message.txt -out message.crypt
 elif args.enc :
@@ -144,7 +181,25 @@ elif args.enc :
 
     if action == 3:
         print("encryptage du fichier")
-    #TODO encryptage du ficher
+
+    abort = False
+    #on verifie que le destinataire a une clef
+    info_pk = generateurKeystore.exportPub(args.user_id)
+    if info_pk < 0:
+        abort = True
+        print "Destinaire n'a pas de clef"
+
+
+
+    fichier = open(args.sig, "r")
+    message = fichier.read()
+    fichier.close()
+    if abort is False and message == "":
+        abort = True
+        print "Le message est vide"
+
+
+
 
 # ecctool -dec -id alice -in secret.crypt -out secret.txt
 elif args.dec:

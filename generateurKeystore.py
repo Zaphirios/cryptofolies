@@ -20,8 +20,8 @@ def generationKey(nomUser):
         init_fichier()
 
 
-    user = urandom(256/8).encode('hex')
-
+    user = urandom(256/8)
+    print user
     fichier = open("keystore", "r")
     pub = 0
     sec = 0
@@ -46,7 +46,7 @@ def generationKey(nomUser):
             pub = 0
             toWrite = toWrite + ligne
         elif ligne == "[/SEC]\n" and sec == 1:
-            toWrite = toWrite + nomUser+":DSA-Ed25519-SHA-512:"+user+"\n"
+            toWrite = toWrite + nomUser+":DSA-Ed25519-SHA-512:"+user.encode('hex')+"\n"
             sec = 0
             toWrite = toWrite + ligne
         else:
@@ -77,6 +77,28 @@ def exportPub(user_id):
                 return info
 
     return
+
+def exportSec(user_id):
+    if exists("keystore") == False:
+        print("Fichier keystore inexistant")
+        return -1
+
+    fichier = open("keystore", "r")
+    chercher = False
+    for ligne in fichier:
+        if chercher == False and ligne == "[SEC]\n":
+            chercher = True;
+
+        elif chercher == True and ligne == "[/SEC]\n":
+            chercher = False
+
+        elif chercher == True:
+            info = ligne.split(':')
+            if info[0] == user_id:
+                return info
+
+    return
+
 
 def importPub(user_id, key):
     if exists("keystore") == False:
