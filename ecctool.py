@@ -5,6 +5,7 @@ import sys
 import argparse
 import ed25519
 import generateurKeystore
+import elgamal
 from os import urandom
 from base64 import b64encode
 
@@ -199,11 +200,11 @@ elif args.enc :
         errcommand()
 
     if action == 3:
-        print("encryptage du fichier")
+        print("Encryptage du fichier")
 
     abort = False
     #on verifie que le destinataire a une clef
-    info_pk = generateurKeystore.exportPub(args.user_id)
+    info_pk = generateurKeystore.exportPub(args.dest)
     if info_pk < 0:
         abort = True
         print "Destinaire n'a pas de clef"
@@ -212,12 +213,18 @@ elif args.enc :
     message = fichier.read()
     fichier.close()
 
-
     if abort is False and message == "":
         abort = True
         print "Le message est vide"
 
+    if not abort:
+        message_enc = elgamal.encrypt(info_pk[2], message)
 
+        fichier_out=open(args.out_info, "w")
+        fichier_out.write(message_enc)
+        fichier_out.close
+
+        print("Message encrypté écrit dans "+args.out_info)
 
 # ecctool -dec -id alice -in secret.crypt -out secret.txt
 elif args.dec:
@@ -243,7 +250,31 @@ elif args.dec:
 
     if action == 3:
         print("decryptage du fichier")
-    #TODO decryptage du ficher
+
+    abort = False
+    #on verifie que le destinataire a une clef
+    info_pk = generateurKeystore.exportSec(args.user_id)
+    if info_pk < 0:
+        abort = True
+        print "Destinaire n'a pas de clef"
+
+    fichier = open(args.in_info, "r")
+    message_crypte = fichier.read()
+    fichier.close()
+
+    if abort is False and message_crypte == "":
+        abort = True
+        print "Le message crypté est vide"
+
+    if not abort:
+        message_enc = elgamal.decrypt(info_pk[2], message_crypte)
+
+        fichier_out=open(args.out_info, "w")
+        fichier_out.write(message_enc)
+        fichier_out.close
+
+        print("Message décrypté écrit dans "+args.out_info)
+
 
 else :
     print("commande imcomprise")
