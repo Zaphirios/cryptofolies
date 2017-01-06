@@ -12,6 +12,7 @@ def encrypt(key, message, iv):
     return base64.encodestring(cipher.encrypt(pad(message.decode())))
 
 def decrypt(key, message, iv):
+
     key=pad(key)[:32].encode()
     iv=pad(iv)[:16].encode()
     cipher=AES.new(key,AES.MODE_CBC,iv)

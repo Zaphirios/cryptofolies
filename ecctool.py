@@ -220,7 +220,9 @@ elif args.enc :
         print "Le message est vide"
 
     if not abort:
+
         sess_key=random_key = base64.encodestring(urandom(16))
+
         cle_enc = elgamal.encrypt(info_pk[2], sess_key)
 
         message_enc = aescrypt.encrypt(sess_key, message, "genereiv".encode('hex'))
@@ -282,7 +284,7 @@ elif args.dec:
         fichier_out.write(message_dec)
         fichier_out.close()
 
-        print("Message décrypté écrit dans "+args.out_info)
+        print "Message décrypté écrit dans "+args.out_info
 
 
 else :
