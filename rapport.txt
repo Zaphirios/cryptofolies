@@ -1,0 +1,18 @@
+Notre groupe est composé de 4 personnes : 
+- Pierrick Chambenoit
+- Maxime Dion
+- Cyprien Ruffino
+- Louis Chandellier
+
+Nous avons completement fini la première partie avec la signature.
+La génération de clef marche grace aux options : -keygen DSA-Ed25519-SHA-512 -id alice
+L'exportation des clefs marche grâce a l'ajout de : -exportpub -id alice
+l'importation des clefs marche comme l'exportation avec l'ajout du fichier en plus : -importpub -id bob < bobkey.txt
+
+La signature d'un fichier ce fait grâce aux option suivante : -sign -id alice -in message.txt -out message.sig
+
+Concernant la verification de la signature du fichier nous avons du rajouter par rapport a la consigne l'id de la personne 
+signant le message permetant de savoir avec quelle clef la signature doit-être vérifié. Cela nous donne donc la commande suivante : 
+-check -in message.txt -sig message.sig
+
+La seconde parti avec le cryptage du message en AES est fonctionnelle cependant la partie Elgamal n'est pas tout a fait fini.

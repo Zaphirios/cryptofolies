@@ -1,0 +1,5 @@
+python ecctool.py -keygen DSA-Ed25519-SHA-512 -id alice
+python ecctool.py -exportpub -id alice
+python -importpub -id bob < pubkeyBob.txt
+python ecctool.py -sign -id alice -in message.txt -out message.sig
+python ecctool.py -check -in message.txt -sig message.sig -id alice
