@@ -1,7 +1,7 @@
 
 
 def encrypt(key, message):
-    pass
+    return "cleaencrypter"
 
 def decrypt(key, message):
-    pass
+    return "todosesskey"
