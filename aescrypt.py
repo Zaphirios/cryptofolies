@@ -6,11 +6,13 @@ def unpad(s): return s.translate(None, chr(1))
 
 
 def encrypt(key, message, iv):
-    iv=iv.decode()[:16]
-    cipher=AES.new(key.decode(),AES.MODE_CBC,iv)
+    key=pad(key)[:16].encode('hex')
+    iv=pad(iv)[:8].encode('hex')
+    cipher=AES.new(key,AES.MODE_CBC,iv)
     return base64.encodestring(cipher.encrypt(pad(message.decode())))
 
 def decrypt(key, message, iv):
-    iv=iv.decode()[:16]
-    cipher=AES.new(key.decode(),AES.MODE_CBC,iv)
+    key=pad(key)[:16].encode('hex')
+    iv=pad(iv)[:8].encode('hex')
+    cipher=AES.new(key,AES.MODE_CBC,iv)
     return unpad(cipher.decrypt(base64.decodestring(message)))

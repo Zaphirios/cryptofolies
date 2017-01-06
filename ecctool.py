@@ -3,6 +3,8 @@
 
 import sys
 import argparse
+
+import aescrypt
 import ed25519
 import generateurKeystore
 import elgamal
@@ -22,7 +24,7 @@ parser.add_argument('-sign', action='store_true', dest='sign', help='Sign a mess
 parser.add_argument('-check', action='store_true', dest='check', help='Check the integrity of a signed message', default=False)
 parser.add_argument('-sig', action='store', dest='sig', help='File to check')
 parser.add_argument('-enc', action='store_true', dest='enc', help='Encrypt a file')
-parser.add_argument('-dec', action='store', dest='dec', help='Decrypt a file')
+parser.add_argument('-dec', action='store_true', dest='dec', help='Decrypt a file')
 
 parser.add_argument('-id', action='store', dest='user_id', help='Set identity')
 parser.add_argument('-in', action='store', dest='in_info', help='Input file')
@@ -218,11 +220,14 @@ elif args.enc :
         print "Le message est vide"
 
     if not abort:
-        message_enc = elgamal.encrypt(info_pk[2], message)
+        sess_key="todosesskey"
+        cle_enc = elgamal.encrypt(info_pk[2], sess_key)
+
+        message_enc = aescrypt.encrypt(sess_key, message, "genereiv".encode('hex'))
 
         fichier_out=open(args.out_info, "w")
-        fichier_out.write(message_enc)
-        fichier_out.close
+        fichier_out.write(cle_enc.decode()+"\n"+message_enc)
+        fichier_out.close()
 
         print("Message encrypté écrit dans "+args.out_info)
 
@@ -230,11 +235,12 @@ elif args.enc :
 elif args.dec:
     action = 0
 
-    if action != -1 and args.dest:
-        action = 1
+    if action != -1 and args.user_id:
+        action = 2
     else:
-        print("[ERREUR] -dest manquant")
+        print("[ERREUR] -id manquant")
         errcommand()
+
 
     if action != -1 and args.in_info:
         action = 2
@@ -259,7 +265,9 @@ elif args.dec:
         print "Destinaire n'a pas de clef"
 
     fichier = open(args.in_info, "r")
-    message_crypte = fichier.read()
+    lines=fichier.readlines()
+    cle_enc = lines[:1]
+    message_crypte = ''.join(lines[1:])
     fichier.close()
 
     if abort is False and message_crypte == "":
@@ -267,11 +275,12 @@ elif args.dec:
         print "Le message crypté est vide"
 
     if not abort:
-        message_enc = elgamal.decrypt(info_pk[2], message_crypte)
+        sess_key = elgamal.decrypt(info_pk[2], cle_enc)
+        message_dec = aescrypt.decrypt(sess_key,message_crypte, "genereiv".encode('hex'))
 
         fichier_out=open(args.out_info, "w")
-        fichier_out.write(message_enc)
-        fichier_out.close
+        fichier_out.write(message_dec)
+        fichier_out.close()
 
         print("Message décrypté écrit dans "+args.out_info)
 
